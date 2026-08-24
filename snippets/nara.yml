@@ -1,0 +1,28 @@
+matches:
+  - trigger: ":cpdir"
+    label: "ChangePack365 project directory"
+    replace: 'Set-Location "$HOME\Projects\ChangePack365"'
+
+  - trigger: ":mgctx"
+    label: "Show Microsoft Graph context"
+    replace: "Get-MgContext | Select-Object Account,TenantId,AuthType,Scopes"
+
+  - trigger: ":ghruns"
+    label: "List recent ChangePack365 CI runs"
+    replace: "gh run list --repo NaraOli0304/ChangePack365 --workflow test.yml --limit 5"
+
+  - trigger: ":gitcheck"
+    label: "Concise Git status"
+    replace: "git status --short"
+
+  - trigger: ":cpverify"
+    label: "Validate the current ChangePack365 case ledger"
+    replace: "Test-CP365Ledger -CasePath $Case.FullName | Format-List"
+
+  - trigger: ":meugit"
+    label: "Nara's GitHub profile"
+    replace: "https://github.com/NaraOli0304"
+
+  - trigger: ":meuprojeto"
+    label: "ChangePack365 repository"
+    replace: "https://github.com/NaraOli0304/ChangePack365"
