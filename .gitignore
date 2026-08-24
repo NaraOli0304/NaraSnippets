@@ -1,0 +1,7 @@
+*.log
+*.tmp
+*.bak
+.env
+.env.*
+secrets/
+private/
