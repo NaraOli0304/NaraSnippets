@@ -1,0 +1,62 @@
+name: M365OpsToolkit CI
+
+on:
+  pull_request:
+    paths:
+      - 'M365OpsToolkit/**'
+      - '.github/workflows/m365opstoolkit-ci.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'M365OpsToolkit/**'
+
+permissions:
+  contents: read
+
+jobs:
+  powershell:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.6.1
+      - name: Parse PowerShell
+        shell: pwsh
+        run: |
+          $errors = @()
+          Get-ChildItem M365OpsToolkit -Recurse -Filter *.ps1 | ForEach-Object {
+            $tokens = $null
+            $parseErrors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName,
+              [ref]$tokens,
+              [ref]$parseErrors
+            )
+            if ($parseErrors) {
+              $errors += $parseErrors
+            }
+          }
+          if ($errors.Count -gt 0) {
+            $errors | Format-List
+            throw "PowerShell parse errors detected."
+          }
+      - name: Run Pester
+        shell: pwsh
+        run: Invoke-Pester M365OpsToolkit/Tests -CI
+
+  connector:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: M365OpsToolkit/Connector/GitHubRepoAdmin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: M365OpsToolkit/Connector/GitHubRepoAdmin/package.json
+      - run: npm install
+      - run: npm run build
