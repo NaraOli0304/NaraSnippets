@@ -46,3 +46,36 @@ Describe "ABAI reusable discovery guards" {
         $content | Should -Match 'GoNoGoConsequence'
     }
 }
+
+
+Describe "Secure skill intake guards" {
+    It "requires a SKILL.md presence check in the skill scanner" {
+        $path = Join-Path $PSScriptRoot "../Common/Test-AgentSkill.ps1"
+        $content = Get-Content $path -Raw
+        $content | Should -Match 'SKILL\.md'
+        $content | Should -Match 'REJECT_MISSING_SKILL_MD'
+    }
+
+    It "flags remote execution and prompt-injection patterns" {
+        $path = Join-Path $PSScriptRoot "../Common/Test-AgentSkill.ps1"
+        $content = Get-Content $path -Raw
+        $content | Should -Match 'RemoteExecution'
+        $content | Should -Match 'PromptInjection'
+        $content | Should -Match 'MANUAL_REVIEW_REQUIRED'
+    }
+
+    It "documents that third-party skills are untrusted until reviewed" {
+        $path = Join-Path $PSScriptRoot "../docs/SECURE-SKILL-INTAKE.md"
+        $content = Get-Content $path -Raw
+        $content | Should -Match 'untrusted dependencies'
+        $content | Should -Match 'pinning the reviewed revision'
+        $content | Should -Match 'Sandboxed validation'
+    }
+
+    It "requires deeper review for AI agent and MCP changes" {
+        $path = Join-Path $PSScriptRoot "../Projects/VibeCoding/README.md"
+        $content = Get-Content $path -Raw
+        $content | Should -Match 'LLM prompts, tools, agents, MCP servers'
+        $content | Should -Match 'Third-party skills are not installed directly'
+    }
+}
