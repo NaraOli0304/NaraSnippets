@@ -20,3 +20,29 @@ Describe "M365OpsToolkit foundation" {
         $content | Should -Not -Match "Get-AzPolicyState"
     }
 }
+
+
+Describe "ABAI reusable discovery guards" {
+    It "does not overwrite the automatic PID variable in ADSync discovery" {
+        $path = Join-Path $PSScriptRoot "../Projects/ABAI-Offboarding/Get-ADSyncServiceTopology.ps1"
+        $content = Get-Content $path -Raw
+        $content | Should -Not -Match '(?m)^\s*\$PID\s*='
+        $content | Should -Match 'ServiceProcessId'
+    }
+
+    It "keeps ADSync topology discovery read-only" {
+        $path = Join-Path $PSScriptRoot "../Projects/ABAI-Offboarding/Get-ADSyncServiceTopology.ps1"
+        $content = Get-Content $path -Raw
+        $content | Should -Match 'sc\.exe'
+        $content | Should -Match 'query ADSync'
+        $content | Should -Match 'qc ADSync'
+        $content | Should -Not -Match '(?i)Start-Service|Stop-Service|Set-Service|Start-ADSyncSyncCycle|Set-ADSync'
+    }
+
+    It "requires explicit exit criteria in the readiness matrix" {
+        $path = Join-Path $PSScriptRoot "../Projects/ABAI-Offboarding/New-ExitReadinessMatrix.ps1"
+        $content = Get-Content $path -Raw
+        $content | Should -Match 'ExitCriterion'
+        $content | Should -Match 'GoNoGoConsequence'
+    }
+}
