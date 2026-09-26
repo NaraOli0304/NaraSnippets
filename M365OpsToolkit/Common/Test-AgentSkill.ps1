@@ -30,10 +30,14 @@ $patterns = @(
 )
 
 $findings = @()
+$readErrors = @()
+$filesReviewed = 0
+$filesSkipped = 0
 
 foreach ($file in $files) {
     $extension = [IO.Path]::GetExtension($file.Name).ToLowerInvariant()
     if ($extension -in @(".png",".jpg",".jpeg",".gif",".pdf",".zip",".exe",".dll",".bin")) {
+        $filesSkipped++
         continue
     }
 
@@ -42,8 +46,10 @@ foreach ($file in $files) {
         $content = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
     }
     catch {
+        $readErrors += $file.FullName.Substring($root.Length).TrimStart("\\","/")
         continue
     }
+    $filesReviewed++
 
     foreach ($rule in $patterns) {
         $matches = [regex]::Matches($content, $rule.Pattern)
@@ -68,11 +74,18 @@ $skillMd = Join-Path $root "SKILL.md"
 $summary = [pscustomobject]@{
     SkillPath      = $root
     SkillMdPresent = Test-Path -LiteralPath $skillMd
-    FilesReviewed  = $files.Count
+    FilesDiscovered = $files.Count
+    FilesReviewed  = $filesReviewed
+    FilesSkipped   = $filesSkipped
+    ReadErrors     = @($readErrors).Count
+    UnreadableFiles = $readErrors
     HighFindings   = @($findings | Where-Object Severity -eq "High").Count
     MediumFindings = @($findings | Where-Object Severity -eq "Medium").Count
     Decision       = if (-not (Test-Path -LiteralPath $skillMd)) {
         "REJECT_MISSING_SKILL_MD"
+    }
+    elseif ($readErrors.Count -gt 0) {
+        "REJECT_UNREADABLE_FILE"
     }
     elseif (@($findings | Where-Object Severity -eq "High").Count -gt 0) {
         "MANUAL_REVIEW_REQUIRED_HIGH_RISK"
