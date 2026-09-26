@@ -46,7 +46,7 @@ foreach ($file in $files) {
         $content = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
     }
     catch {
-        $readErrors += $file.FullName.Substring($root.Length).TrimStart("\\","/")
+        $readErrors += $file.FullName.Substring($root.Length).TrimStart("\","/")
         continue
     }
     $filesReviewed++
