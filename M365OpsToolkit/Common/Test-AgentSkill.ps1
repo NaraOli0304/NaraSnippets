@@ -12,7 +12,7 @@ if (-not (Test-Path -LiteralPath $Path)) {
 
 $root = (Resolve-Path -LiteralPath $Path).Path
 $files = @(
-    Get-ChildItem -LiteralPath $root -Recurse -File -ErrorAction Stop
+    Get-ChildItem -LiteralPath $root -Recurse -File -Force -ErrorAction Stop
 )
 
 $patterns = @(
@@ -43,7 +43,7 @@ foreach ($file in $files) {
 
     $content = $null
     try {
-        $content = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
+        $content = [string](Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop)
     }
     catch {
         $readErrors += $file.FullName.Substring($root.Length).TrimStart("\","/")
@@ -73,7 +73,7 @@ $skillMd = Join-Path $root "SKILL.md"
 
 $summary = [pscustomobject]@{
     SkillPath      = $root
-    SkillMdPresent = Test-Path -LiteralPath $skillMd
+    SkillMdPresent = Test-Path -LiteralPath $skillMd -PathType Leaf
     FilesDiscovered = $files.Count
     FilesReviewed  = $filesReviewed
     FilesSkipped   = $filesSkipped
@@ -81,7 +81,7 @@ $summary = [pscustomobject]@{
     UnreadableFiles = $readErrors
     HighFindings   = @($findings | Where-Object Severity -eq "High").Count
     MediumFindings = @($findings | Where-Object Severity -eq "Medium").Count
-    Decision       = if (-not (Test-Path -LiteralPath $skillMd)) {
+    Decision       = if (-not (Test-Path -LiteralPath $skillMd -PathType Leaf)) {
         "REJECT_MISSING_SKILL_MD"
     }
     elseif ($readErrors.Count -gt 0) {
