@@ -22,7 +22,7 @@ Espanso writes the expansion but does not press Enter. Review commands before ex
 
 ## Validate a ChangePack365 case
 
-In PowerShell 7, load the ChangePack365 module:
+In PowerShell 7.2 or newer, load the ChangePack365 module:
 
 ```powershell
 Import-Module "$HOME\Projects\ChangePack365\ChangePack365.psd1"
@@ -46,7 +46,7 @@ CI runs this test on Windows and Linux against ChangePack365 commit `e65606625e0
 
 ## Install
 
-Prerequisites: Windows, Espanso 2.4+ and PowerShell 7.
+Prerequisites: Windows, Espanso 2.4+ and PowerShell 7.2 or newer.
 
 ```powershell
 git clone https://github.com/NaraOli0304/NaraSnippets.git
