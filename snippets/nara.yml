@@ -17,7 +17,7 @@ matches:
 
   - trigger: ":cpverify"
     label: "Validate the current ChangePack365 case ledger"
-    replace: "Test-CP365Ledger -CasePath $Case.FullName | Format-List"
+    replace: "Test-CP365Ledger -CasePath $Case.Path | Format-List"
 
   - trigger: ":meugit"
     label: "Nara's GitHub profile"
