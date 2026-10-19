@@ -21,3 +21,12 @@ jobs:
       - name: Validate curated snippets
         shell: pwsh
         run: ./scripts/Test-NaraSnippets.ps1 | Format-List
+      - uses: actions/checkout@v6
+        with:
+          repository: NaraOli0304/ChangePack365
+          ref: e65606625e06a1f90743269bb9d11ecef3143164
+          path: .test-deps/ChangePack365
+          persist-credentials: false
+      - name: Validate ChangePack365 snippet compatibility offline
+        shell: pwsh
+        run: ./scripts/Test-ChangePackSnippet.ps1 -ChangePackRoot ./.test-deps/ChangePack365 | Format-List
